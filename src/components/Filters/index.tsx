@@ -1,4 +1,4 @@
-import { Input as AInput, InputProps } from 'antd';
+import { Input as AInput, InputProps, Select as ASelect, SelectProps } from 'antd';
 import { useRef } from 'react';
 
 const Filters = () => {};
@@ -8,6 +8,8 @@ const Input = (props: InputProps) => {
   return (
     <AInput
       {...props}
+      allowClear
+      className="w-48"
       onCompositionStart={() => {
         isInputing.current = true;
       }}
@@ -28,6 +30,15 @@ const Input = (props: InputProps) => {
   );
 };
 
+const Select = (props: SelectProps) => {
+  return (
+    <ASelect {...props} allowClear dropdownMatchSelectWidth={false} className="w-48">
+      {props.children}
+    </ASelect>
+  );
+};
+
 Filters.Input = Input;
+Filters.Select = Select;
 
 export default Filters;

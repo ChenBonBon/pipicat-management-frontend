@@ -1,3 +1,5 @@
+import { message } from 'antd';
+
 export interface RequestParams {
   [key: string]: any;
 }
@@ -30,14 +32,22 @@ export async function Get(url: string, params: RequestParams) {
   return await response.json();
 }
 
-const request = (url: string, method: string, params?: RequestParams) => {
-  return fetch(url, {
+const request = async (url: string, method: string, params?: RequestParams) => {
+  const response = await fetch(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(params),
   });
+
+  const json = await response.json();
+
+  if (json.error) {
+    message.error(json.message.join(','));
+  } else {
+    return json;
+  }
 };
 
 export function Post(url: string, params: RequestParams) {
@@ -50,4 +60,8 @@ export function Put(url: string, params: RequestParams) {
 
 export function Delete(url: string) {
   return request(url, 'DELETE');
+}
+
+export function Patch(url: string, params: RequestParams) {
+  return request(url, 'PATCH', params);
 }

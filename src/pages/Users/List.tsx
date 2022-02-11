@@ -1,12 +1,14 @@
+import { Moment } from '.pnpm/moment@2.29.1/node_modules/moment';
 import { DeleteOutlined, EditOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import ListLayout from '@layouts/ListLayout';
 import { Filters } from '@src/components';
 import Icon from '@src/components/Icon';
-import { GENDERS, USER_STATUS } from '@src/constants';
+import { DATE_FORMAT, GENDERS, USER_STATUS } from '@src/constants';
 import useDebounceFunc from '@src/hooks/useDebounceFunc';
 import { RequestParams } from '@src/services/request';
 import { RootState } from '@src/store';
-import { Button, DatePicker, Form, Input, message, Modal, Popconfirm, Select } from 'antd';
+import { Button, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd';
+import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToggle } from 'react-use';
@@ -22,7 +24,12 @@ interface User {
   birthday?: string;
   mobile?: string;
   email?: string;
-  status: 'enabled' | 'disabled';
+  status: 'enabled' | 'disabled' | 'locked';
+}
+
+interface Birthday {
+  start?: Moment;
+  end?: Moment;
 }
 
 export default function UserList() {
@@ -33,6 +40,7 @@ export default function UserList() {
   const [name, setName] = useState('');
   const [gender, setGender] = useState('');
   const [status, setStatus] = useState('');
+  const [birthday, setBirthday] = useState({ start: '', end: '' });
   const [dataSource, setDataSource] = useState([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const paginationRef = useRef({ current: 1, pageSize: 10 });
@@ -47,11 +55,17 @@ export default function UserList() {
       key: 'gender',
       dataIndex: 'gender',
       title: '性别',
+      render: (text: string) => {
+        return GENDERS.find((gender) => gender.value === text)?.label;
+      },
     },
     {
       key: 'birthday',
       dataIndex: 'birthday',
       title: '出生日期',
+      render: (text: string) => {
+        return dayjs(text).format(DATE_FORMAT);
+      },
     },
     {
       key: 'mobile',
@@ -68,7 +82,12 @@ export default function UserList() {
       dataIndex: 'status',
       title: '状态',
       render: (text: string) => {
-        return USER_STATUS.find((status) => status.value === text)?.label;
+        const status = USER_STATUS.find((status) => status.value === text);
+        if (text === 'enabled') {
+          return <Tag color="success">{status?.label}</Tag>;
+        } else {
+          return <Tag color="error">{status?.label}</Tag>;
+        }
       },
     },
     {
@@ -78,7 +97,9 @@ export default function UserList() {
         return (
           <div>
             <Icon>
-              <EditOutlined onClick={toggle} />
+              <Tooltip title="编辑">
+                <EditOutlined onClick={toggle} />
+              </Tooltip>
             </Icon>
             <Icon>
               <Popconfirm
@@ -92,7 +113,9 @@ export default function UserList() {
                 }}
                 onCancel={() => {}}
               >
-                <DeleteOutlined />
+                <Tooltip title="删除">
+                  <DeleteOutlined />
+                </Tooltip>
               </Popconfirm>
             </Icon>
             {item.status === 'enabled' && (
@@ -108,11 +131,13 @@ export default function UserList() {
                   }}
                   onCancel={() => {}}
                 >
-                  <LockOutlined />
+                  <Tooltip title="锁定">
+                    <LockOutlined />
+                  </Tooltip>
                 </Popconfirm>
               </Icon>
             )}
-            {item.status === 'disabled' && (
+            {item.status === 'locked' && (
               <Icon>
                 <Popconfirm
                   title={
@@ -125,7 +150,9 @@ export default function UserList() {
                   }}
                   onCancel={() => {}}
                 >
-                  <UnlockOutlined />
+                  <Tooltip title="解锁">
+                    <UnlockOutlined />
+                  </Tooltip>
                 </Popconfirm>
               </Icon>
             )}
@@ -149,6 +176,12 @@ export default function UserList() {
       if (status && status.length > 0) {
         payload.status = status;
       }
+      if (birthday && birthday.start && birthday.start.length > 0) {
+        payload.startDate = birthday.start;
+      }
+      if (birthday && birthday.end && birthday.end.length > 0) {
+        payload.endDate = birthday.end;
+      }
       const res = await dispatch.user.fetchUsers(payload);
       if (res) {
         const { data, total } = res;
@@ -161,6 +194,10 @@ export default function UserList() {
   const addUser = async () => {
     try {
       const values = await form.validateFields();
+      const { birthday } = values;
+      if (birthday) {
+        values.birthday = new Date(birthday.format('YYYY/MM/DD'));
+      }
       const res = await dispatch.user.addUser(values);
       if (res) {
         await fetchUsers();
@@ -180,15 +217,32 @@ export default function UserList() {
     } catch (error) {}
   };
 
-  const lockUser = async (id: string) => {};
-  const unLockUser = async (id: string) => {};
+  const lockUser = async (id: string) => {
+    try {
+      const res = await dispatch.user.lockUser(id);
+      if (res) {
+        await fetchUsers();
+        message.success('锁定用户成功');
+      }
+    } catch (error) {}
+  };
+
+  const unLockUser = async (id: string) => {
+    try {
+      const res = await dispatch.user.unLockUser(id);
+      if (res) {
+        await fetchUsers();
+        message.success('解锁用户成功');
+      }
+    } catch (error) {}
+  };
 
   useDebounceFunc(
     () => {
       fetchUsers();
     },
     300,
-    [name, gender, status],
+    [name, gender, status, birthday],
   );
 
   return (
@@ -202,11 +256,8 @@ export default function UserList() {
             setName(value);
           }}
         />,
-        <Select
-          dropdownMatchSelectWidth={false}
+        <Filters.Select
           placeholder="请选择性别"
-          allowClear
-          className="w-full"
           onChange={(value) => {
             setGender(value);
           }}
@@ -219,12 +270,9 @@ export default function UserList() {
               </Option>
             );
           })}
-        </Select>,
-        <Select
-          dropdownMatchSelectWidth={false}
+        </Filters.Select>,
+        <Filters.Select
           placeholder="请选择用户状态"
-          allowClear
-          className="w-full"
           onChange={(value) => {
             setStatus(value);
           }}
@@ -237,8 +285,19 @@ export default function UserList() {
               </Option>
             );
           })}
-        </Select>,
-        <RangePicker />,
+        </Filters.Select>,
+        <RangePicker
+          onChange={(values) => {
+            if (values) {
+              const start = dayjs(values[0]?.format('YYYY/MM/DD')).toISOString();
+              const end = dayjs(values[1]?.add(1, 'd')?.format('YYYY/MM/DD')).toISOString();
+              setBirthday({ start, end });
+            } else {
+              setBirthday({ start: '', end: '' });
+            }
+          }}
+          format={DATE_FORMAT}
+        />,
       ]}
       actions={[
         <Button type="primary" onClick={toggle}>
@@ -291,7 +350,7 @@ export default function UserList() {
             </Select>
           </Form.Item>
           <Form.Item name="birthday" label="出生日期">
-            <DatePicker className="w-full" placeholder="请选择出生日期" />
+            <DatePicker className="w-full" placeholder="请选择出生日期" format={DATE_FORMAT} />
           </Form.Item>
           <Form.Item name="mobile" label="手机号">
             <Input placeholder="请输入手机号" type="tel" />

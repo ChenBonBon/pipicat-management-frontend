@@ -22,7 +22,7 @@ export default function ListLayout({ title, filters = [], actions = [], table = 
         <div>
           {filters.map((filter, index) => {
             return (
-              <div className={`inline-block w-48${index > 0 ? ' ml-4' : ''}`} key={index}>
+              <div className={`inline-block${index > 0 ? ' ml-4' : ''}`} key={index}>
                 {filter}
               </div>
             );

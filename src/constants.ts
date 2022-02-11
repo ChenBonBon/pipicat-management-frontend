@@ -22,4 +22,11 @@ export const USER_STATUS = [
     label: '禁用',
     value: 'disabled',
   },
+  {
+    key: 'locked',
+    label: '锁定',
+    value: 'locked',
+  },
 ];
+
+export const DATE_FORMAT = 'YYYY年MM月DD日';
