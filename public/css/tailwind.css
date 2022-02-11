@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ant-btn-primary {
+  @apply bg-primary;
+}
+
+.icon + .icon {
+  @apply ml-4;
+}
