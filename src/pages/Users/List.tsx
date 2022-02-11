@@ -1,12 +1,12 @@
 import { DeleteOutlined, EditOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import ListLayout from '@layouts/ListLayout';
-import { Input } from '@src/components';
+import { Filters } from '@src/components';
 import Icon from '@src/components/Icon';
 import { GENDERS, USER_STATUS } from '@src/constants';
 import useDebounceFunc from '@src/hooks/useDebounceFunc';
 import { RequestParams } from '@src/services/request';
 import { RootState } from '@src/store';
-import { Button, DatePicker, Form, message, Modal, Popconfirm, Select } from 'antd';
+import { Button, DatePicker, Form, Input, message, Modal, Popconfirm, Select } from 'antd';
 import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToggle } from 'react-use';
@@ -195,7 +195,7 @@ export default function UserList() {
     <ListLayout
       title="用户管理"
       filters={[
-        <Input
+        <Filters.Input
           placeholder="请输入姓名"
           onChange={(e) => {
             const value = e.currentTarget.value;
