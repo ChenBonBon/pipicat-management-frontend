@@ -24,6 +24,10 @@ export async function fetchRoles(params: any) {
   return await Get('/api/user/roles', params);
 }
 
+export async function fetchRoleOptions(params: any) {
+  return await Get('/api/user/roles/options', params);
+}
+
 export async function fetchRole(id: string) {
   return await Get(`/api/user/role/${id}`);
 }

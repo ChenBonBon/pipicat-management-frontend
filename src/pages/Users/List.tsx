@@ -9,7 +9,7 @@ import { RequestParams } from '@src/services/request';
 import { RootState } from '@src/store';
 import { Button, DatePicker, Input, message, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToggle } from 'react-use';
 
@@ -20,7 +20,7 @@ const { RangePicker } = DatePicker;
 export default function UserList() {
   const dispatch = useDispatch();
   const isLoading = useSelector((state: RootState) => state.loading.models.user);
-  const { user } = useSelector((state: RootState) => state.user);
+  const { user, roleOptions } = useSelector((state: RootState) => state.user);
   const [form] = useForm();
   const [visible, toggle] = useToggle(false);
   const [name, setName] = useState('');
@@ -62,6 +62,14 @@ export default function UserList() {
       key: 'email',
       dataIndex: 'email',
       title: '邮箱',
+    },
+    {
+      key: 'roleId',
+      dataIndex: 'roleId',
+      title: '角色',
+      render: (text: string) => {
+        return roleOptions.find((role) => role.id === text)?.name;
+      },
     },
     {
       key: 'status',
@@ -185,6 +193,10 @@ export default function UserList() {
     await fetchUsers();
   };
 
+  const fetchRoleOptions = async () => {
+    await dispatch.user.fetchRoleOptions();
+  };
+
   const fetchUser = async (id: string) => {
     const res = await dispatch.user.fetchUser(id);
     if (res) {
@@ -258,6 +270,10 @@ export default function UserList() {
       }
     } catch (error) {}
   };
+
+  useEffect(() => {
+    fetchRoleOptions();
+  }, []);
 
   useDebounceFunc(
     () => {
@@ -398,6 +414,18 @@ export default function UserList() {
           </Form.Item>
           <Form.Item name="email" label="邮箱">
             <Input placeholder="请输入邮箱" type="email" />
+          </Form.Item>
+          <Form.Item name="roleId" label="角色">
+            <Select dropdownMatchSelectWidth={false} placeholder="请选择角色" allowClear>
+              {roleOptions.map((role) => {
+                const { id, name } = role;
+                return (
+                  <Option key={id} value={id}>
+                    {name}
+                  </Option>
+                );
+              })}
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

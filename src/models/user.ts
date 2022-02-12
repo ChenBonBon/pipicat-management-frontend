@@ -4,6 +4,7 @@ import {
   addUser,
   deleteUser,
   fetchRole,
+  fetchRoleOptions,
   fetchRoles,
   fetchUser,
   fetchUsers,
@@ -29,10 +30,16 @@ export interface Role {
   status: 'enabled' | 'disabled';
 }
 
+export interface RoleOption {
+  id: string;
+  name: string;
+}
+
 export const user = createModel<RootModel>()({
   state: {
     user: undefined as User | undefined,
     role: undefined as Role | undefined,
+    roleOptions: [] as RoleOption[],
   },
   reducers: {
     setUser: (state, payload) => {
@@ -57,6 +64,12 @@ export const user = createModel<RootModel>()({
       return {
         ...state,
         role: undefined,
+      };
+    },
+    setRoleOption: (state, payload) => {
+      return {
+        ...state,
+        roleOptions: payload,
       };
     },
   },
@@ -88,6 +101,12 @@ export const user = createModel<RootModel>()({
     },
     async fetchRoles(payload) {
       return await fetchRoles(payload);
+    },
+    async fetchRoleOptions(payload) {
+      const res = await fetchRoleOptions(payload);
+      if (res) {
+        dispatch.user.setRoleOption(res);
+      }
     },
     async fetchRole(id) {
       const res = await fetchRole(id);
