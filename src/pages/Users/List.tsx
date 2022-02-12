@@ -1,13 +1,13 @@
-import { Moment } from '.pnpm/moment@2.29.1/node_modules/moment';
 import { DeleteOutlined, EditOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import ListLayout from '@layouts/ListLayout';
-import { Filters } from '@src/components';
+import { Filters, Form } from '@src/components';
 import Icon from '@src/components/Icon';
 import { DATE_FORMAT, GENDERS, USER_STATUS } from '@src/constants';
 import useDebounceFunc from '@src/hooks/useDebounceFunc';
+import { User } from '@src/models/user';
 import { RequestParams } from '@src/services/request';
 import { RootState } from '@src/store';
-import { Button, DatePicker, Form, Input, message, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd';
+import { Button, DatePicker, Input, message, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,24 +17,10 @@ const { Option } = Select;
 const { useForm } = Form;
 const { RangePicker } = DatePicker;
 
-interface User {
-  id: string;
-  name: string;
-  gender?: 'male' | 'female';
-  birthday?: string;
-  mobile?: string;
-  email?: string;
-  status: 'enabled' | 'disabled' | 'locked';
-}
-
-interface Birthday {
-  start?: Moment;
-  end?: Moment;
-}
-
 export default function UserList() {
   const dispatch = useDispatch();
-  const isLoading = useSelector((rootState: RootState) => rootState.loading.models.user);
+  const isLoading = useSelector((state: RootState) => state.loading.models.user);
+  const { user } = useSelector((state: RootState) => state.user);
   const [form] = useForm();
   const [visible, toggle] = useToggle(false);
   const [name, setName] = useState('');
@@ -98,7 +84,11 @@ export default function UserList() {
           <div>
             <Icon>
               <Tooltip title="编辑">
-                <EditOutlined onClick={toggle} />
+                <EditOutlined
+                  onClick={() => {
+                    fetchUser(item.id);
+                  }}
+                />
               </Tooltip>
             </Icon>
             <Icon>
@@ -111,7 +101,6 @@ export default function UserList() {
                 onConfirm={() => {
                   deleteUser(item.id);
                 }}
-                onCancel={() => {}}
               >
                 <Tooltip title="删除">
                   <DeleteOutlined />
@@ -191,6 +180,23 @@ export default function UserList() {
     } catch (error) {}
   };
 
+  const initFetchUsers = async () => {
+    paginationRef.current = { current: 1, pageSize: 10 };
+    await fetchUsers();
+  };
+
+  const fetchUser = async (id: string) => {
+    const res = await dispatch.user.fetchUser(id);
+    if (res) {
+      const { birthday } = res;
+      form.setFieldsValue({
+        ...res,
+        birthday: dayjs(birthday),
+      });
+      toggle();
+    }
+  };
+
   const addUser = async () => {
     try {
       const values = await form.validateFields();
@@ -200,8 +206,24 @@ export default function UserList() {
       }
       const res = await dispatch.user.addUser(values);
       if (res) {
-        await fetchUsers();
+        await initFetchUsers();
         message.success('新增用户成功');
+        toggle();
+      }
+    } catch (error) {}
+  };
+
+  const updateUser = async (id: string) => {
+    try {
+      const values = await form.validateFields();
+      const { birthday } = values;
+      if (birthday) {
+        values.birthday = new Date(birthday.format('YYYY/MM/DD'));
+      }
+      const res = await dispatch.user.updateUser({ id, payload: values });
+      if (res) {
+        await initFetchUsers();
+        message.success('修改用户成功');
         toggle();
       }
     } catch (error) {}
@@ -211,7 +233,7 @@ export default function UserList() {
     try {
       const res = await dispatch.user.deleteUser(id);
       if (res) {
-        await fetchUsers();
+        await initFetchUsers();
         message.success('删除用户成功');
       }
     } catch (error) {}
@@ -221,7 +243,7 @@ export default function UserList() {
     try {
       const res = await dispatch.user.lockUser(id);
       if (res) {
-        await fetchUsers();
+        await initFetchUsers();
         message.success('锁定用户成功');
       }
     } catch (error) {}
@@ -231,7 +253,7 @@ export default function UserList() {
     try {
       const res = await dispatch.user.unLockUser(id);
       if (res) {
-        await fetchUsers();
+        await initFetchUsers();
         message.success('解锁用户成功');
       }
     } catch (error) {}
@@ -239,7 +261,7 @@ export default function UserList() {
 
   useDebounceFunc(
     () => {
-      fetchUsers();
+      initFetchUsers();
     },
     300,
     [name, gender, status, birthday],
@@ -300,7 +322,13 @@ export default function UserList() {
         />,
       ]}
       actions={[
-        <Button type="primary" onClick={toggle}>
+        <Button
+          type="primary"
+          onClick={async () => {
+            await dispatch.user.resetUser();
+            toggle();
+          }}
+        >
           新增用户
         </Button>,
       ]}
@@ -317,7 +345,19 @@ export default function UserList() {
         loading: isLoading,
       }}
     >
-      <Modal visible={visible} onCancel={toggle} onOk={addUser} title="新增用户" destroyOnClose={true}>
+      <Modal
+        visible={visible}
+        onCancel={toggle}
+        onOk={() => {
+          if (user) {
+            updateUser(user.id);
+          } else {
+            addUser();
+          }
+        }}
+        title={user?.id ? '修改用户' : '新增用户'}
+        destroyOnClose={true}
+      >
         <Form form={form} preserve={false} labelCol={{ span: 6 }} wrapperCol={{ span: 15, push: 1 }} colon={false}>
           <Form.Item
             name="name"
@@ -335,7 +375,7 @@ export default function UserList() {
               },
             ]}
           >
-            <Input placeholder="请输入姓名" />
+            <Form.Input placeholder="请输入姓名" />
           </Form.Item>
           <Form.Item name="gender" label="性别">
             <Select dropdownMatchSelectWidth={false} placeholder="请选择性别" allowClear>

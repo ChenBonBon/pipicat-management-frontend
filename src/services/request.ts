@@ -4,7 +4,7 @@ export interface RequestParams {
   [key: string]: any;
 }
 
-const convertParams = (params: RequestParams) => {
+const convertParams = (params?: RequestParams) => {
   const resultArr: string[] = [];
   if (params) {
     Object.keys(params).forEach((key) => {
@@ -20,7 +20,7 @@ const convertParams = (params: RequestParams) => {
   return '';
 };
 
-export async function Get(url: string, params: RequestParams) {
+export async function Get(url: string, params?: RequestParams) {
   const convertedParams = convertParams(params);
   const response = await fetch(`${url}${convertedParams}`, {
     method: 'GET',

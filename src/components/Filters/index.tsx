@@ -9,6 +9,7 @@ const Input = (props: InputProps) => {
     <AInput
       {...props}
       allowClear
+      autoComplete="off"
       className="w-48"
       onCompositionStart={() => {
         isInputing.current = true;

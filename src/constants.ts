@@ -18,14 +18,22 @@ export const USER_STATUS = [
     value: 'enabled',
   },
   {
-    key: 'disabled',
-    label: '禁用',
-    value: 'disabled',
-  },
-  {
     key: 'locked',
     label: '锁定',
     value: 'locked',
+  },
+];
+
+export const ROLE_STATUS = [
+  {
+    key: 'enabled',
+    label: '启用',
+    value: 'enabled',
+  },
+  {
+    key: 'disabled',
+    label: '停用',
+    value: 'disabled',
   },
 ];
 

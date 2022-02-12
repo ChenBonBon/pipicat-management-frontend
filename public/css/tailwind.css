@@ -6,6 +6,14 @@
   @apply bg-primary;
 }
 
+.ant-switch {
+  @apply bg-disabled;
+}
+
+.ant-switch-checked {
+  @apply bg-primary;
+}
+
 .icon + .icon {
   @apply ml-4;
 }

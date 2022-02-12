@@ -4,6 +4,7 @@ module.exports = {
   theme: {
     colors: {
       primary: '#1890ff',
+      disabled: 'rgba(0, 0, 0, 0.25)',
     },
   },
   variants: {
