@@ -1,5 +1,15 @@
 import { createModel } from '@rematch/core';
-import { addUser, deleteUser, fetchUser, fetchUsers, updateUser } from '@src/services/user';
+import {
+  addRole,
+  addUser,
+  deleteUser,
+  fetchRole,
+  fetchRoles,
+  fetchUser,
+  fetchUsers,
+  updateRole,
+  updateUser,
+} from '@src/services/user';
 import { RootModel } from '.';
 
 export interface User {
@@ -12,9 +22,17 @@ export interface User {
   status: 'enabled' | 'locked';
 }
 
+export interface Role {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'enabled' | 'disabled';
+}
+
 export const user = createModel<RootModel>()({
   state: {
     user: undefined as User | undefined,
+    role: undefined as Role | undefined,
   },
   reducers: {
     setUser: (state, payload) => {
@@ -27,6 +45,18 @@ export const user = createModel<RootModel>()({
       return {
         ...state,
         user: undefined,
+      };
+    },
+    setRole: (state, payload) => {
+      return {
+        ...state,
+        role: payload,
+      };
+    },
+    resetRole: (state) => {
+      return {
+        ...state,
+        role: undefined,
       };
     },
   },
@@ -55,6 +85,28 @@ export const user = createModel<RootModel>()({
     },
     async unLockUser(id) {
       return await updateUser(id, { status: 'enabled' });
+    },
+    async fetchRoles(payload) {
+      return await fetchRoles(payload);
+    },
+    async fetchRole(id) {
+      const res = await fetchRole(id);
+      if (res) {
+        dispatch.user.setRole(res);
+      }
+      return res;
+    },
+    async addRole(payload) {
+      return await addRole(payload);
+    },
+    async updateRole({ id, payload }) {
+      return await updateRole(id, payload);
+    },
+    async enableRole(id) {
+      return await updateRole(id, { status: 'enabled' });
+    },
+    async disableRole(id) {
+      return await updateRole(id, { status: 'disabled' });
     },
   }),
 });

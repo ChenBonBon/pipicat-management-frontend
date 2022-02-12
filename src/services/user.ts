@@ -19,3 +19,19 @@ export async function deleteUser(id: string) {
 export async function updateUser(id: string, params: any) {
   return await Patch(`/api/user/${id}`, params);
 }
+
+export async function fetchRoles(params: any) {
+  return await Get('/api/user/roles', params);
+}
+
+export async function fetchRole(id: string) {
+  return await Get(`/api/user/role/${id}`);
+}
+
+export async function addRole(params: any) {
+  return await Post('/api/user/role', params);
+}
+
+export async function updateRole(id: string, params: any) {
+  return await Patch(`/api/user/role/${id}`, params);
+}

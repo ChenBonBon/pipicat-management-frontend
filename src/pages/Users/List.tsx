@@ -309,6 +309,7 @@ export default function UserList() {
           })}
         </Filters.Select>,
         <RangePicker
+          separator={null}
           onChange={(values) => {
             if (values) {
               const start = dayjs(values[0]?.format('YYYY/MM/DD')).toISOString();
