@@ -4,7 +4,7 @@ import { Filters, Form } from '@src/components';
 import Icon from '@src/components/Icon';
 import { ROLE_STATUS } from '@src/constants';
 import useDebounceFunc from '@src/hooks/useDebounceFunc';
-import { Role } from '@src/models/user';
+import { Role } from '@src/models/role';
 import { RequestParams } from '@src/services/request';
 import { RootState } from '@src/store';
 import { Button, Input, message, Modal, Popconfirm, Select, Switch, Tag, Tooltip } from 'antd';
@@ -18,7 +18,7 @@ const { useForm } = Form;
 export default function RoleList() {
   const dispatch = useDispatch();
   const isLoading = useSelector((rootState: RootState) => rootState.loading.models.user);
-  const { role } = useSelector((state: RootState) => state.user);
+  const { role } = useSelector((state: RootState) => state.role);
   const [form] = useForm();
   const [visible, toggle] = useToggle(false);
   const [name, setName] = useState('');

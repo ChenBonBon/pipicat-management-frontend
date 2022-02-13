@@ -25,6 +25,7 @@ export default defineConfig({
       '@layouts': '/src/layouts',
       '@models': '/src/models',
       '@pages': '/src/pages',
+      '@services': '/src/services',
     },
   },
 });

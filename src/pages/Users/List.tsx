@@ -20,7 +20,8 @@ const { RangePicker } = DatePicker;
 export default function UserList() {
   const dispatch = useDispatch();
   const isLoading = useSelector((state: RootState) => state.loading.models.user);
-  const { user, roleOptions } = useSelector((state: RootState) => state.user);
+  const { user } = useSelector((state: RootState) => state.user);
+  const { roleOptions } = useSelector((state: RootState) => state.role);
   const [form] = useForm();
   const [visible, toggle] = useToggle(false);
   const [name, setName] = useState('');
