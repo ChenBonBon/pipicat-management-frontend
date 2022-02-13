@@ -44,7 +44,7 @@ const request = async (url: string, method: string, params?: RequestParams) => {
   const json = await response.json();
 
   if (json.error) {
-    message.error(json.message.join(','));
+    message.error(json.message);
   } else {
     return json;
   }

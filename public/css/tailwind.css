@@ -14,6 +14,14 @@
   @apply bg-primary;
 }
 
+.anticon {
+  @apply align-middle;
+}
+
+.ant-message .anticon {
+  @apply top-0;
+}
+
 .icon + .icon {
   @apply ml-4;
 }
