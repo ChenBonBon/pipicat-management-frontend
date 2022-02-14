@@ -120,7 +120,7 @@ export default function RoleList() {
       if (status && status.length > 0) {
         payload.status = status;
       }
-      const res = await dispatch.user.fetchRoles(payload);
+      const res = await dispatch.role.fetchRoles(payload);
       if (res) {
         const { data, total } = res;
         setDataSource(data);
@@ -135,7 +135,7 @@ export default function RoleList() {
   };
 
   const fetchRole = async (id: string) => {
-    const res = await dispatch.user.fetchRole(id);
+    const res = await dispatch.role.fetchRole(id);
     if (res) {
       const { status } = res;
       form.setFieldsValue({
@@ -153,7 +153,7 @@ export default function RoleList() {
       if (status) {
         values.status = status ? 'enabled' : 'disabled';
       }
-      const res = await dispatch.user.addRole(values);
+      const res = await dispatch.role.addRole(values);
       if (res) {
         await initFetchRoles();
         message.success('新增角色成功');
@@ -169,7 +169,7 @@ export default function RoleList() {
       if (status) {
         values.status = status ? 'enabled' : 'disabled';
       }
-      const res = await dispatch.user.updateRole({ id, payload: values });
+      const res = await dispatch.role.updateRole({ id, payload: values });
       if (res) {
         await initFetchRoles();
         message.success('修改角色成功');
@@ -180,7 +180,7 @@ export default function RoleList() {
 
   const enableRole = async (id: string) => {
     try {
-      const res = await dispatch.user.enableRole(id);
+      const res = await dispatch.role.enableRole(id);
       if (res) {
         await initFetchRoles();
         message.success('启用角色成功');
@@ -190,7 +190,7 @@ export default function RoleList() {
 
   const disableRole = async (id: string) => {
     try {
-      const res = await dispatch.user.disableRole(id);
+      const res = await dispatch.role.disableRole(id);
       if (res) {
         await initFetchRoles();
         message.success('停用角色成功');
@@ -237,7 +237,7 @@ export default function RoleList() {
         <Button
           type="primary"
           onClick={async () => {
-            await dispatch.user.resetRole();
+            await dispatch.role.resetRole();
             toggle();
           }}
         >

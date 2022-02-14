@@ -195,7 +195,7 @@ export default function UserList() {
   };
 
   const fetchRoleOptions = async () => {
-    await dispatch.user.fetchRoleOptions();
+    await dispatch.role.fetchRoleOptions();
   };
 
   const fetchUser = async (id: string) => {
