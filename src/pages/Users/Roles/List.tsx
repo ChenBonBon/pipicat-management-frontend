@@ -150,9 +150,9 @@ export default function RoleList() {
     try {
       const values = await form.validateFields();
       const { status } = values;
-      if (status) {
-        values.status = status ? 'enabled' : 'disabled';
-      }
+
+      values.status = status ? 'enabled' : 'disabled';
+
       const res = await dispatch.role.addRole(values);
       if (res) {
         await initFetchRoles();
@@ -166,9 +166,9 @@ export default function RoleList() {
     try {
       const values = await form.validateFields();
       const { status } = values;
-      if (status) {
-        values.status = status ? 'enabled' : 'disabled';
-      }
+
+      values.status = status ? 'enabled' : 'disabled';
+
       const res = await dispatch.role.updateRole({ id, payload: values });
       if (res) {
         await initFetchRoles();
