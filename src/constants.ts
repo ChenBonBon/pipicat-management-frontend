@@ -37,4 +37,17 @@ export const ROLE_STATUS = [
   },
 ];
 
+export const PERMISSION_STATUS = [
+  {
+    key: 'enabled',
+    label: '启用',
+    value: 'enabled',
+  },
+  {
+    key: 'disabled',
+    label: '停用',
+    value: 'disabled',
+  },
+];
+
 export const DATE_FORMAT = 'YYYY年MM月DD日';
